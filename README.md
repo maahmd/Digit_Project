@@ -8,3 +8,4 @@ Machine Learning Web Application
 
 رابط مستودع GitHub: https://github.com/maahmd/Digit_Project
 شكرا
+test requests
