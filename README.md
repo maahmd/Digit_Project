@@ -7,3 +7,4 @@ Machine Learning Web Application
 رابط التطبيق المباشر: https://huggingface.co/spaces/maahmd/my-digit-recognizer
 
 رابط مستودع GitHub: https://github.com/maahmd/Digit_Project
+شكرا
