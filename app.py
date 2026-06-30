@@ -46,6 +46,15 @@ if canvas_result.image_data is not None:
 
     prediction = model.predict(img_array)
     predicted_digit = np.argmax(prediction)
-    
-    st.markdown(f"## 🎯 هذا الرقم هو: **{predicted_digit}**")
+    confidence = np.max(prediction) * 100
+
+    st.markdown(
+        f"""
+## 🎯 هذا الرقم هو: **{predicted_digit}**
+
+📊 نسبة الثقة:
+**{confidence:.2f}%**
+"""
+    )
+
     st.image(img, caption="الصورة التي رآها النموذج", width=150)
