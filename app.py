@@ -4,28 +4,14 @@ import numpy as np
 from PIL import Image
 from streamlit_drawable_canvas import st_canvas
 
-# ===== 1. تعريف بنية النموذج مع أسماء فريدة =====
-def build_model():
-    model = tf.keras.models.Sequential([
-        tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1), name='conv2d_1'),
-        tf.keras.layers.MaxPooling2D((2, 2), name='maxpool_1'),
-        tf.keras.layers.Conv2D(64, (3, 3), activation='relu', name='conv2d_2'),
-        tf.keras.layers.MaxPooling2D((2, 2), name='maxpool_2'),
-        tf.keras.layers.Conv2D(64, (3, 3), activation='relu', name='conv2d_3'),
-        tf.keras.layers.Flatten(name='flatten'),
-        tf.keras.layers.Dense(64, activation='relu', name='dense_1'),
-        tf.keras.layers.Dense(10, activation='softmax', name='dense_2')
-    ])
-    return model
-
-model = build_model()
-model.load_weights('model_weights.weights.h5')
+# ===== 1. تحميل النموذج =====
+model = tf.keras.models.load_model('digit_recognition_model.h5')
 
 # ===== 2. واجهة التطبيق =====
 st.title("🤖 التعرف على الأرقام المكتوبة بخط اليد")
 st.write("ارسم رقماً في المربع الأسود بالأسفل، وسأخمنه فوراً!")
 
-# إنشاء لوحة الرسم
+# ===== 3. لوحة الرسم =====
 canvas_result = st_canvas(
     fill_color="black",
     stroke_width=15,
@@ -37,15 +23,46 @@ canvas_result = st_canvas(
     key="canvas",
 )
 
+# ===== 4. التحقق من الرسم =====
 if canvas_result.image_data is not None:
+
+    # تحويل الصورة إلى numpy
     img = canvas_result.image_data.astype(np.uint8)
-    img = Image.fromarray(img).convert('L')
-    img = img.resize((28, 28))
-    img_array = np.array(img) / 255.0
+
+    # تحويل إلى PIL ثم إعادة تجهيزها
+    img_pil = Image.fromarray(img).convert('L')
+    img_pil = img_pil.resize((28, 28))
+
+    # تحويل إلى array للنموذج
+    img_array = np.array(img_pil) / 255.0
     img_array = img_array.reshape(1, 28, 28, 1)
 
-    prediction = model.predict(img_array)
-    predicted_digit = np.argmax(prediction)
-    
-    st.markdown(f"## 🎯 هذا الرقم هو: **{predicted_digit}**")
-    st.image(img, caption="الصورة التي رآها النموذج", width=150)
+    # ===== 5. التحقق من أن الرسم غير فارغ =====
+    if img_array.mean() < 0.01:
+        st.warning("✏️ ارسم رقماً أولاً")
+
+    else:
+        # ===== 6. التنبؤ =====
+        prediction = model.predict(img_array)
+        predicted_digit = np.argmax(prediction)
+        confidence = np.max(prediction) * 100
+
+        # ===== 7. مستوى الثقة =====
+        if confidence >= 90:
+            st.success("The model is highly confident in this prediction.")
+        elif confidence >= 65:
+            st.info("The model is reasonably confident in this prediction.")
+        else:
+            st.warning("The model is not very confident. Try drawing more clearly.")
+
+        # ===== 8. عرض النتيجة =====
+        st.markdown(
+            f"""
+## 🎯 هذا الرقم هو: **{predicted_digit}**
+
+📊 نسبة الثقة:
+**{confidence:.2f}%**
+"""
+        )
+
+        st.image(img_pil, caption="الصورة التي رآها النموذج", width=150)
