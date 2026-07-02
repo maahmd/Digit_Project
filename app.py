@@ -39,6 +39,7 @@ canvas_result = st_canvas(
 
 if canvas_result.image_data is not None:
     img = canvas_result.image_data.astype(np.uint8)
+    original_img = Image.fromarray(img)
     img = Image.fromarray(img).convert('L')
     img = img.resize((28, 28))
     img_array = np.array(img) / 255.0
@@ -48,4 +49,10 @@ if canvas_result.image_data is not None:
     predicted_digit = np.argmax(prediction)
     
     st.markdown(f"## 🎯 هذا الرقم هو: **{predicted_digit}**")
-    st.image(img, caption="الصورة التي رآها النموذج", width=150)
+    col1, col2 = st.columns(2)
+
+        with col1:
+            st.image(original_img, caption="Original Drawing", width=150)
+
+        with col2:
+            st.image(img_pil, caption="Processed Image (28×28)", width=150)
