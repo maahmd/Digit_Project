@@ -44,9 +44,20 @@ if canvas_result.image_data is not None:
     img_array = np.array(img) / 255.0
     img_array = img_array.reshape(1, 28, 28, 1)
 
-    prediction = model.predict(img_array)
-    predicted_digit = np.argmax(prediction)
-    confidence = np.max(prediction) * 100
+    if img_array.mean() < 0.01:
+        st.warning("✏️ ارسم رقماً أولاً")
+
+    else:
+        prediction = model.predict(img_array)
+        predicted_digit = np.argmax(prediction)
+        confidence = np.max(prediction) * 100
+
+        if confidence >= 90:
+            st.success("The model is highly confident in this prediction.")
+        elif confidence >= 65:
+            st.info("The model is reasonably confident in this prediction.")
+        else:
+            st.warning("The model is not very confident. Try drawing more clearly.")
 
     st.markdown(
         f"""
