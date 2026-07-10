@@ -49,3 +49,16 @@ if canvas_result.image_data is not None:
     
     st.markdown(f"## 🎯 هذا الرقم هو: **{predicted_digit}**")
     st.image(img, caption="الصورة التي رآها النموذج", width=150)
+
+#إظهار نسبة ثقة النموذج
+prediction = model.predict(img_array)
+predicted_digit = np.argmax(prediction)
+confidence = np.max(prediction) * 100
+
+st.markdown(f"## 🎯 هذا الرقم هو: **{predicted_digit}**")
+st.markdown(f"### 🔍 درجة الثقة: **{confidence:.1f}%**")
+
+if confidence < 70:
+    st.warning("⚠️ لست متأكداً كثيراً... حاول رسم الرقم بشكل أوضح!")
+
+st.image(img, caption="الصورة التي رآها النموذج", width=150)
