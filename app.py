@@ -3,6 +3,8 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 from streamlit_drawable_canvas import st_canvas
+import time
+
 
 # ===== 1. تعريف بنية النموذج مع أسماء فريدة =====
 def build_model():
@@ -49,7 +51,11 @@ if canvas_result.image_data is not None:
         st.warning("✏️ ارسم رقماً أولاً")
 
     else:
+        start_time = time.time()
         prediction = model.predict(img_array)
+        end_time = time.time()
+        prediction_time = (end_time - start_time) * 1000
+        
         predicted_digit = np.argmax(prediction)
         confidence = np.max(prediction) * 100
 
@@ -61,13 +67,14 @@ if canvas_result.image_data is not None:
             st.warning("The model is not very confident. Try drawing more clearly.")
 
     st.markdown(
-        f"""
+    f"""
 ## 🎯 هذا الرقم هو: **{predicted_digit}**
 
-📊 نسبة الثقة:
-**{confidence:.2f}%**
+📊 **نسبة الثقة:** {confidence:.2f} بالمئة
+
+⚡ **زمن التنبؤ:** {int(prediction_time)} مللي ثانية
 """
-    )
+)
 
     col1, col2 = st.columns(2)
 
